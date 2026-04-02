@@ -3,17 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TrucksBook Full Streamer</title>
+  <title>TrucksBook Live Auto</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       background: transparent;
       font-family: Arial, Helvetica, sans-serif;
-      overflow: hidden;
     }
 
     .widget {
@@ -26,8 +23,6 @@
       box-shadow:
         0 0 0 1px rgba(255,255,255,0.03) inset,
         0 12px 40px rgba(0,0,0,0.35);
-      backdrop-filter: blur(10px);
-      position: relative;
     }
 
     .topbar {
@@ -43,7 +38,6 @@
       gap: 10px;
       font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.5px;
     }
 
     .brand-icon {
@@ -66,7 +60,6 @@
       background: rgba(255,255,255,0.05);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.6px;
     }
 
     .live-dot {
@@ -88,7 +81,6 @@
     .label {
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 1px;
       opacity: 0.6;
       margin-bottom: 5px;
     }
@@ -120,7 +112,6 @@
     .stat-title {
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 1px;
       opacity: 0.6;
       margin-bottom: 8px;
     }
@@ -129,12 +120,13 @@
       font-size: 30px;
       font-weight: 800;
       line-height: 1;
-      transition: transform 0.25s ease, opacity 0.25s ease;
       word-break: break-word;
     }
 
-    .accent {
-      opacity: 0.95;
+    .rank-note {
+      margin-top: 7px;
+      font-size: 11px;
+      opacity: 0.65;
     }
 
     .progress-wrap {
@@ -156,7 +148,6 @@
       background: rgba(255,255,255,0.08);
       border-radius: 999px;
       overflow: hidden;
-      position: relative;
     }
 
     .progress-fill {
@@ -176,46 +167,10 @@
       opacity: 0.62;
     }
 
-    .pulse {
-      animation: pop 0.45s ease;
-    }
-
-    .up {
-      animation: glowUp 0.6s ease;
-    }
-
-    .down {
-      animation: glowDown 0.6s ease;
-    }
-
     @keyframes blink {
       0% { opacity: 1; }
       50% { opacity: 0.35; }
       100% { opacity: 1; }
-    }
-
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.12); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes glowUp {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); text-shadow: 0 0 16px rgba(0,255,170,0.8); }
-      100% { transform: scale(1); text-shadow: none; }
-    }
-
-    @keyframes glowDown {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); text-shadow: 0 0 16px rgba(255,170,0,0.8); }
-      100% { transform: scale(1); text-shadow: none; }
-    }
-
-    .rank-note {
-      margin-top: 7px;
-      font-size: 11px;
-      opacity: 0.65;
     }
   </style>
 </head>
@@ -234,18 +189,18 @@
 
     <div class="main-card">
       <div class="label">Pseudo</div>
-      <div class="pseudo">Puiti80</div>
+      <div class="pseudo" id="pseudo">Chargement...</div>
 
       <div class="grid">
         <div class="stat">
           <div class="stat-title">Classement</div>
-          <div class="stat-value accent" id="rank">#...</div>
+          <div class="stat-value" id="rank">#...</div>
           <div class="rank-note" id="rankNote">Chargement...</div>
         </div>
 
         <div class="stat">
           <div class="stat-title">Kilomètres</div>
-          <div class="stat-value accent" id="km">...</div>
+          <div class="stat-value" id="km">...</div>
           <div class="rank-note">Distance totale</div>
         </div>
       </div>
@@ -271,11 +226,9 @@
     const profileUrl = "https://trucksbook.eu/profile/513651";
     const proxy = "https://api.allorigins.win/raw?url=";
 
-    let lastRank = null;
-    let lastKm = null;
-
     function cleanNumber(str) {
-      return parseInt(String(str).replace(/[^\d]/g, ""), 10);
+      const n = parseInt(String(str).replace(/[^\d]/g, ""), 10);
+      return Number.isFinite(n) ? n : 0;
     }
 
     function formatFrenchNumber(n) {
@@ -283,34 +236,22 @@
     }
 
     function updateTime() {
-      const now = new Date();
       document.getElementById("updatedAt").textContent =
-        now.toLocaleTimeString("fr-FR");
-    }
-
-    function animateValue(el, cls) {
-      el.classList.remove("pulse", "up", "down");
-      void el.offsetWidth;
-      el.classList.add(cls);
-      setTimeout(() => {
-        el.classList.remove(cls);
-      }, 700);
+        new Date().toLocaleTimeString("fr-FR");
     }
 
     function updateProgressFromKm(kmValue) {
       const kmNumber = cleanNumber(kmValue) || 0;
-
-      // Barre visuelle basée sur un cycle de 100 000 km
       const cycle = 100000;
       const progress = (kmNumber % cycle) / cycle;
       const percent = Math.round(progress * 100);
-
       document.getElementById("progressFill").style.width = percent + "%";
       document.getElementById("progressText").textContent = percent + "%";
     }
 
     async function updateData() {
       const status = document.getElementById("status");
+      const pseudoEl = document.getElementById("pseudo");
       const rankEl = document.getElementById("rank");
       const kmEl = document.getElementById("km");
       const rankNote = document.getElementById("rankNote");
@@ -320,61 +261,35 @@
         const response = await fetch(proxy + encodeURIComponent(profileUrl));
         const html = await response.text();
 
-        // Extraction souple selon le contenu de la page
+        const pseudoMatch = html.match(/<title>(.*?)\s*\|\s*TrucksBook/i);
+        if (pseudoMatch) {
+          pseudoEl.textContent = pseudoMatch[1].trim();
+        }
+
         const rankMatch =
           html.match(/Rank[^#\d]{0,40}#\s*([\d]+)/i) ||
           html.match(/Current rank[^#\d]{0,40}#\s*([\d]+)/i) ||
           html.match(/>\s*#\s*([\d]+)\s*</i);
 
+        if (rankMatch) {
+          rankEl.textContent = "#" + cleanNumber(rankMatch[1]);
+          rankNote.textContent = "Données chargées";
+        }
+
         const kmMatch =
           html.match(/Total distance[^0-9]{0,40}([\d\s.,]+)\s*km/i) ||
           html.match(/Distance[^0-9]{0,40}([\d\s.,]+)\s*km/i);
 
-        if (rankMatch) {
-          const newRank = "#" + cleanNumber(rankMatch[1]);
-
-          if (newRank !== lastRank) {
-            rankEl.textContent = newRank;
-
-            if (lastRank !== null) {
-              const oldRankNum = cleanNumber(lastRank);
-              const newRankNum = cleanNumber(newRank);
-
-              if (newRankNum < oldRankNum) {
-                rankNote.textContent = "Tu montes au classement";
-                animateValue(rankEl, "up");
-              } else if (newRankNum > oldRankNum) {
-                rankNote.textContent = "Classement mis à jour";
-                animateValue(rankEl, "down");
-              } else {
-                rankNote.textContent = "Stable";
-                animateValue(rankEl, "pulse");
-              }
-            } else {
-              rankNote.textContent = "Données chargées";
-              animateValue(rankEl, "pulse");
-            }
-
-            lastRank = newRank;
-          }
-        }
-
         if (kmMatch) {
           const kmNumber = cleanNumber(kmMatch[1]);
           const newKm = formatFrenchNumber(kmNumber) + " km";
-
-          if (newKm !== lastKm) {
-            kmEl.textContent = newKm;
-            animateValue(kmEl, "up");
-            lastKm = newKm;
-          }
-
+          kmEl.textContent = newKm;
           updateProgressFromKm(newKm);
         }
 
         updateTime();
         status.textContent = "Connecté";
-      } catch (error) {
+      } catch (e) {
         status.textContent = "Erreur de synchronisation";
         rankNote.textContent = "Impossible de récupérer les données";
       }
