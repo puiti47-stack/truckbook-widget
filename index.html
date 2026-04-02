@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrucksBook Full Streamer - Puiti80</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    .widget {
+      width: 360px;
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(10, 10, 14, 0.88);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 12px 40px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      position: relative;
+      margin: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.06);
+      font-size: 18px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff3b30;
+      animation: blink 1s infinite;
+    }
+
+    .main-card {
+      background: rgba(255,255,255,0.04);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.6;
+      margin-bottom: 5px;
+    }
+
+    .pseudo {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.6;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      word-break: break-word;
+    }
+
+    .accent { opacity: 0.95; }
+
+    .progress-wrap { margin-top: 16px; }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      opacity: 0.75;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00d1ff, #00ffcc);
+      transition: width 0.6s ease;
+    }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11px;
+      opacity: 0.62;
+    }
+
+    .pulse { animation: pop 0.45s ease; }
+    .up { animation: glowUp 0.6s ease; }
+    .down { animation: glowDown 0.6s ease; }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.35; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes glowUp {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); text-shadow: 0 0 16px rgba(0,255,170,0.8); }
+      100% { transform: scale(1); text-shadow: none; }
+    }
+
+    @keyframes glowDown {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); text-shadow: 0 0 16px rgba(255,170,0,0.8); }
+      100% { transform: scale(1); text-shadow: none; }
+    }
+
+    .rank-note {
+      margin-top: 7px;
+      font-size: 11px;
+      opacity: 0.65;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🚛</div>
+        <div>TRUCKSBOOK LIVE</div>
+      </div>
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        LIVE
+      </div>
+    </div>
+
+    <div class="main-card">
+      <div class="label">Pseudo</div>
+      <div class="pseudo">Puiti80</div>
+
+      <div class="grid">
+        <div class="stat">
+          <div class="stat-title">Classement</div>
+          <div class="stat-value accent" id="rank">#...</div>
+          <div class="rank-note" id="rankNote">Chargement...</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Kilomètres</div>
+          <div class="stat-value accent" id="km">...</div>
+          <div class="rank-note">Distance totale</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-head">
+          <span>Progression visuelle</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="status">Synchronisation...</span>
+      <span id="updatedAt">--:--:--</span>
+    </div>
+  </div>
+
+  <script>
+    const profileUrl = "https://trucksbook.eu/profile/513651";
+    const proxy = "https://api.allorigins.win/raw?url=";
+
+    let lastRank = null;
+    let lastKm = null;
+
+    function cleanNumber(str) {
+      const n = parseInt(String(str).replace(/[^\d]/g, ""), 10);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatFrenchNumber(n) {
+      return new Intl.NumberFormat("fr-FR").format(n);
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("updatedAt").textContent = now.toLocaleTimeString("fr-FR");
+    }
+
+    function animateValue(el, cls) {
+      el.classList.remove("pulse", "up", "down");
+      void el.offsetWidth;
+      el.classList.add(cls);
+      setTimeout(() => el.classList.remove(cls), 700);
+    }
+
+    function updateProgressFromKm(kmValue) {
+      const kmNumber = cleanNumber(kmValue) || 0;
+      const cycle = 100000;
+      const progress = (kmNumber % cycle) / cycle;
+      const percent = Math.round(progress * 100);
+
+      document.getElementById("progressFill").style.width = percent + "%";
+      document.getElementById("progressText").textContent = percent + "%";
+    }
+
+    async function updateData() {
+      const status = document.getElementById("status");
+      const rankEl = document.getElementById("rank");
+      const kmEl = document.getElementById("km");
+      const rankNote = document.getElementById("rankNote");
+
+      try {
+        status.textContent = "Mise à jour...";
+        const response = await fetch(proxy + encodeURIComponent(profileUrl));
+        const html = await response.text();
+
+        const rankMatch =
+          html.match(/Rank[^#\d]{0,40}#\s*([\d]+)/i) ||
+          html.match(/Current rank[^#\d]{0,40}#\s*([\d]+)/i) ||
+          html.match(/>\s*#\s*([\d]+)\s*</i);
+
+        const kmMatch =
+          html.match(/Total distance[^0-9]{0,40}([\d\s.,]+)\s*km/i) ||
+          html.match(/Distance[^0-9]{0,40}([\d\s.,]+)\s*km/i);
+
+        if (rankMatch) {
+          const newRank = "#" + cleanNumber(rankMatch[1]);
+
+          if (newRank !== lastRank) {
+            rankEl.textContent = newRank;
+
+            if (lastRank !== null) {
+              const oldRankNum = cleanNumber(lastRank);
+              const newRankNum = cleanNumber(newRank);
+
+              if (newRankNum < oldRankNum) {
+                rankNote.textContent = "Tu montes au classement";
+                animateValue(rankEl, "up");
+              } else if (newRankNum > oldRankNum) {
+                rankNote.textContent = "Classement mis à jour";
+                animateValue(rankEl, "down");
+              } else {
+                rankNote.textContent = "Stable";
+                animateValue(rankEl, "pulse");
+              }
+            } else {
+              rankNote.textContent = "Données chargées";
+              animateValue(rankEl, "pulse");
+            }
+
+            lastRank = newRank;
+          }
+        }
+
+        if (kmMatch) {
+          const kmNumber = cleanNumber(kmMatch[1]);
+          const newKm = formatFrenchNumber(kmNumber) + " km";
+
+          if (newKm !== lastKm) {
+            kmEl.textContent = newKm;
+            animateValue(kmEl, "up");
+            lastKm = newKm;
+          }
+
+          updateProgressFromKm(newKm);
+        }
+
+        updateTime();
+        status.textContent = "Connecté";
+      } catch (error) {
+        status.textContent = "Erreur de synchronisation";
+        rankNote.textContent = "Impossible de récupérer les données";
+      }
+    }
+
+    updateData();
+    setInterval(updateData, 8000);
+  </script>
+</body>
+</html>
